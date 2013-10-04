@@ -10,8 +10,8 @@ class Debris {
   void draw(PApplet p) {
     if (debrisData != null) {
       p.pushMatrix();
-      p.stroke(255);
-
+      //p.stroke(255);
+      
       p.translate((float)(debrisData.getX() * factor), 
       (float)(debrisData.getY() * factor), 
       (float)(debrisData.getZ() * factor));
@@ -23,6 +23,7 @@ class Debris {
       p.line(0, 0, 0, (float)(vel.x), (float)(vel.y), (float)(vel.z));
 
       p.strokeWeight(3);
+      //p.stroke(50,230,90);
       p.stroke(255);
       p.point(0, 0, 0);
       p.popMatrix();

@@ -39,10 +39,11 @@ DebrisSwarm debSwarm;
 
 void setup () {
   
-  speed = 0.0005;
+  speed = 0.0008;
   rotAngle = 0;
 
   //size(displayWidth, displayHeight, P3D);
+  //size(640, 480, P3D);
   size(800, 600, P3D);
   
   guiFont = loadFont("Futura-Medium-48.vlw");
@@ -83,8 +84,14 @@ void updateCamera() {
   rotAngle += speed;
   
   float ar = sin(rotAngle) * (orbitRadius/2);
-  float or = map(ar, -orbitRadius/2, orbitRadius/2, 110, 300);
+  float or = map(ar, -orbitRadius/2, orbitRadius/2, 200, 300);
   
+//  if (or > 280) {
+//    textTitle = true;
+//  } else {
+//    textTitle = false;
+//  }
+//  
   PVector rot = new PVector(
     (cos(rotAngle) * or),
     0,
@@ -125,13 +132,14 @@ void draw () {
     filter(blur);
   }
   
-  if (sendImage) {
-    server.sendImage(get());
-  }
+
   if (drawGui) {
     gui();
   }
   
+   if (sendImage) {
+    server.sendImage(get());
+  }
   
 }
 
@@ -163,7 +171,7 @@ void drawTitle() {
   textAlign(CENTER);
   text("According to NASA, the intentional destruction of FY-1C created 2,841 high-velocity debris items,", width/2, height/2 + 50);
   text("a larger amount of dangerous space junk than any other space mission in history.", width/2, height/2 + 80);
-  text("This visualisation shows the live position of each item.", width/2, height/2 + 110);
+  text("This visualisation shows the current position of each item around earth.", width/2, height/2 + 110);
   
   textAlign(RIGHT);
   textFont(guiFont, 11);
@@ -225,7 +233,6 @@ void keyPressed() {
   if (key == 'k') {
     textTitle = !textTitle;
   }  
-  
   
   
   if (key == 'b') {
