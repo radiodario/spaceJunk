@@ -113,7 +113,7 @@ class DebrisSwarm extends Thread {
     while ( true ) {
       try {
         update();
-        //sleep(100);
+        sleep(50);
       } 
       catch (Exception e) {
         
@@ -126,7 +126,14 @@ class DebrisSwarm extends Thread {
   void updateDate() {
     
     
-    double timeElapsed = (startTime + millis()) * timeWarp;
+    double timeElapsed = (startTime + millis());
+   
+    float modifier = map(kontrol.get("timeWarp"), 0, 127, 1, 1000);
+    
+    if (modifier == 0) {
+     modifier = 1;
+    }
+    timeElapsed *= modifier; 
     
     // we need to pass the current day in double form
     // to the sgp4 equations.

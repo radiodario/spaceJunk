@@ -6,6 +6,10 @@ import java.util.List;
 import java.util.Iterator;
 import java.util.GregorianCalendar;
 import codeanticode.syphon.*;
+import themidibus.*;
+
+MidiBus nanoKontrol;
+Controller kontrol;
 
 SyphonServer server;
 
@@ -23,6 +27,8 @@ boolean useShaders = false;
 boolean sendImage = false;
 boolean textTitle = false;
 boolean textStats = false;
+
+
 
 float rotAngle;
 PShader glow;
@@ -42,9 +48,13 @@ void setup () {
   speed = 0.0008;
   rotAngle = 0;
 
+  nanoKontrol = new MidiBus(this, 0, 0);
+
   //size(displayWidth, displayHeight, P3D);
-  //size(640, 480, P3D);
-  size(800, 600, P3D);
+  size(640, 480, P3D);
+  //size(800, 600, P3D);
+  
+  kontrol = new Controller();
   
   guiFont = loadFont("Futura-Medium-48.vlw");
   chineseFont = loadFont("PMingLiU-48.vlw");
@@ -55,14 +65,10 @@ void setup () {
 
   server = new SyphonServer(this, "space debris");
 
-  
-
   setCamera();
-  
   
   debSwarm = new DebrisSwarm("1999-025.txt");
   debSwarm.start();
-  
   
 }
 
@@ -81,17 +87,14 @@ void setCamera() {
 }
 
 void updateCamera() {
-  rotAngle += speed;
+  rotAngle += map(kontrol.get("rotationSpeed"), 0, 127, 0, 0.05);
+  
+  float minOrbit = map(kontrol.get("minOrbit"), 0, 127, 100, 300);
+  float maxOrbit = map(kontrol.get("maxOrbit"), 0, 127, 200, 500); 
   
   float ar = sin(rotAngle) * (orbitRadius/2);
-  float or = map(ar, -orbitRadius/2, orbitRadius/2, 200, 300);
+  float or = map(ar, -orbitRadius/2, orbitRadius/2, minOrbit, maxOrbit);
   
-//  if (or > 280) {
-//    textTitle = true;
-//  } else {
-//    textTitle = false;
-//  }
-//  
   PVector rot = new PVector(
     (cos(rotAngle) * or),
     0,
@@ -108,22 +111,25 @@ void updateCamera() {
 
 
 void draw () {
-  //frame.hide();
-  if (orbit) {
+  frame.hide();
+  if (kontrol.get("orbit") > 0) {
     updateCamera();
   }
+  
   
   
   background(0);
   stroke(255);
   
-  // draw a sphere
-  pushStyle();
-  stroke(20);
-  fill(0, 0, 50, 60);
-  sphereDetail(10);
-  sphere(90);
-  popStyle();
+  if (kontrol.get("drawSphere") > 0) {
+    // draw a sphere
+    pushStyle();
+    stroke(20);
+    fill(0, 0, 50, 60);
+    sphereDetail(10);
+    sphere(90);
+    popStyle();
+  }
   
   debSwarm.draw(this);
   
@@ -137,9 +143,9 @@ void draw () {
     gui();
   }
   
-   if (sendImage) {
-    server.sendImage(get());
-  }
+  
+  server.sendImage(get());
+  
   
 }
 
@@ -211,6 +217,15 @@ void gui() {
 }
 
 
+
+void controllerChange(int channel, int number, int value) {
+  kontrol.handleMidiEvent(channel, number, value);
+}
+
+
+void noteOn(int channel, int pad, int velocity, String bus_name) {
+  kontrol.handleMidiEvent(channel, pad, velocity);
+}
 
 
 void keyPressed() {
